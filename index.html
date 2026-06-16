@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>오뚜기 입금표</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="입금표"/>
+<meta name="theme-color" content="#000000"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff;padding:10px;}
+.wrap{background:#fff;border:1px solid #999;border-radius:4px;overflow:hidden;max-width:780px;margin:0 auto;}
+
+/* 헤더 */
+.hd{background:#fff;color:#000;border-bottom:2px solid #000;padding:10px 14px 8px;}
+.hd-top{display:flex;justify-content:space-between;align-items:center;}
+.hd h1{font-size:15px;font-weight:800;letter-spacing:-.3px;}
+.hd .fax{font-size:11px;}
+.hd-sub{font-size:11px;margin-top:4px;display:flex;align-items:center;gap:6px;}
+.hd-sub input{background:#fff;border:1px solid #555;color:#000;font-size:11px;font-weight:700;width:72px;outline:none;text-align:center;border-radius:4px;padding:2px 4px;}
+.hd-sub input::placeholder{color:#aaa;}
+
+.confirmed-banner{display:none;background:#eee;color:#000;font-size:11px;font-weight:700;text-align:center;padding:5px;border-bottom:1px solid #999;}
+.confirmed .confirmed-banner{display:block;}
+
+/* 검색 */
+.add-section{padding:7px 10px;background:#fff;border-bottom:1px solid #ccc;position:relative;}
+.add-section input{width:100%;padding:7px 12px;border:1px solid #777;border-radius:4px;font-size:13px;outline:none;}
+.ac-list{position:absolute;left:10px;right:10px;background:#fff;border:1px solid #777;border-top:none;border-radius:0 0 4px 4px;z-index:100;max-height:180px;overflow-y:auto;display:none;box-shadow:0 4px 8px rgba(0,0,0,.15);}
+.ac-list div{padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid #eee;}
+.ac-list div:active{background:#eee;}
+
+/* 표 */
+.tbl-wrap{overflow-x:auto;padding:0;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead tr{background:#fff;color:#000;}
+thead th{padding:6px 5px;font-weight:700;text-align:center;border:1px solid #555;white-space:nowrap;}
+thead th.th-final{font-size:12px;font-weight:900;border:2px solid #000;}
+tbody tr{border-bottom:1px solid #ccc;}
+tbody tr:nth-child(even){background:#f5f5f5;}
+tbody td{padding:4px 5px;border:1px solid #ccc;text-align:center;vertical-align:middle;}
+tbody td.name-cell{text-align:left;font-weight:600;color:#000;font-size:11px;max-width:130px;}
+tbody td input{width:100%;border:none;background:transparent;font-size:11px;text-align:right;outline:none;color:#000;padding:0 2px;}
+tbody td input.name-inp{text-align:left;font-weight:600;color:#000;}
+tbody td input.final-inp{color:#000;font-weight:900;font-size:13px;}
+tbody td input[readonly]{color:#333;}
+.td-total input{color:#000;font-weight:700;}
+.td-final{border-left:2px solid #000;border-right:2px solid #000;}
+.vat-badge{font-size:9px;padding:1px 4px;border:1px solid #999;border-radius:2px;font-weight:700;}
+.vat-과세{background:#fff;color:#000;}
+.vat-면세{background:#eee;color:#000;}
+.del-btn{background:none;border:none;color:#999;font-size:13px;cursor:pointer;padding:0;line-height:1;}
+.del-btn:active{color:#000;}
+
+/* 합계행 */
+.sum-row-tr td{background:#f0f0f0;font-weight:700;font-size:11px;padding:5px 5px;}
+.sum-row-tr td.lbl{text-align:right;color:#333;}
+.sum-row-tr td.val{text-align:right;color:#000;}
+.grand-tr td{background:#fff;color:#000;font-weight:800;font-size:12px;padding:6px 5px;border-top:2px solid #000;}
+.grand-tr td.lbl{text-align:right;}
+.grand-tr td.val{text-align:right;}
+.grand-tr input{color:#000;font-weight:800;font-size:12px;background:transparent;border:none;outline:none;width:100%;text-align:right;}
+
+/* 잔액 영역 */
+.payment{margin:8px 10px 10px;border:1px solid #777;border-radius:4px;overflow:hidden;}
+.pay-row{display:flex;}
+.pay-box{flex:1;padding:8px 12px;background:#fff;border-right:1px solid #ccc;}
+.pay-box.dark{background:#eee;}
+.pay-box .lbl{font-size:10px;color:#555;margin-bottom:3px;}
+.pay-box.dark .lbl{color:#333;}
+.pay-box input{border:none;border-bottom:1px solid #777;font-size:14px;font-weight:800;color:#000;width:100%;outline:none;background:transparent;}
+.pay-box.dark input{border-bottom-color:#333;color:#000;font-size:15px;}
+.pay-note{font-size:10px;color:#555;padding:4px 12px;background:#f5f5f5;border-top:1px solid #ccc;}
+.bank-row{padding:5px 12px 8px;background:#fff;display:flex;align-items:center;gap:6px;font-size:11px;color:#333;border-top:1px solid #ccc;}
+.bank-row input{border:none;border-bottom:1px solid #999;font-size:12px;width:155px;outline:none;background:transparent;color:#000;}
+
+/* 버튼 */
+.btn-wrap{padding:8px 10px 12px;display:flex;gap:6px;}
+.btn{flex:1;padding:10px 6px;border:1px solid #777;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;background:#fff;color:#000;}
+.btn:active{opacity:.6;}
+.btn-confirm{background:#000;color:#fff;border-color:#000;}
+.btn-edit{background:#555;color:#fff;border-color:#555;display:none;}
+.btn-copy{background:#fff;color:#000;}
+.btn-img{background:#333;color:#fff;border-color:#333;}
+.btn-share{background:#fff;color:#000;border-color:#555;}
+
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;justify-content:center;align-items:center;flex-direction:column;gap:12px;}
+#overlay.show{display:flex;}
+#overlay p{color:#fff;font-size:14px;font-weight:700;}
+.spinner{width:34px;height:34px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .wrap{box-shadow:none;border-radius:0;}
+  .btn-wrap,.add-section,#overlay{display:none!important;}
+}
+</style>
+</head>
+<body>
+<div id="overlay"><div class="spinner"></div><p id="ov-txt">이미지 저장 중...</p></div>
+
+<div class="wrap" id="main-card">
+  <div class="confirmed-banner">✅ 확정됨 — 수정하려면 [수정하기] 버튼을 누르세요</div>
+
+  <div class="hd">
+    <div class="hd-top">
+      <h1>오뚜기 거래처 입금표</h1>
+      <span class="fax">FAX: 031-907-3854</span>
+    </div>
+    <div class="hd-sub">
+      자료
+      <input id="doc-date" type="text" placeholder="날짜">
+      납품분 · 창대통상
+    </div>
+  </div>
+
+  <div class="add-section" id="add-section">
+    <input type="text" id="search-input" placeholder="➕ 품목명 검색해서 추가..." autocomplete="off" oninput="onSearch(this.value)"/>
+    <div class="ac-list" id="ac-list"></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="items-table">
+      <thead>
+        <tr>
+          <th style="width:22px"></th>
+          <th style="min-width:100px;text-align:left;">품목명</th>
+          <th>구분</th>
+          <th>납품가<br>(VAT별도)</th>
+          <th>박스수</th>
+          <th>박스당</th>
+          <th>납품량</th>
+          <th>공급가액</th>
+          <th>세액</th>
+          <th class="th-final">장려금포함<br>부가세포함가</th>
+          <th>합계</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+      <tfoot>
+        <tr class="sum-row-tr">
+          <td colspan="7" class="lbl">공급가액 합계</td>
+          <td colspan="2" class="val"><input id="sum-supply" readonly value="0" style="border:none;background:transparent;width:100%;text-align:right;font-weight:700;font-size:11px;outline:none;"/></td>
+          <td colspan="2"></td>
+        </tr>
+        <tr class="sum-row-tr">
+          <td colspan="7" class="lbl">세액 합계</td>
+          <td colspan="2" class="val"><input id="sum-tax" readonly value="0" style="border:none;background:transparent;width:100%;text-align:right;font-weight:700;font-size:11px;outline:none;"/></td>
+          <td colspan="2"></td>
+        </tr>
+        <tr class="grand-tr">
+          <td colspan="7" class="lbl">총 합계</td>
+          <td colspan="4" class="val"><input id="sum-total" readonly value="0"/></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="payment">
+    <div class="pay-row">
+      <div class="pay-box">
+        <div class="lbl">현재 잔액</div>
+        <input class="pay-inp" id="balance-inp" type="text" value="4,806,577" oninput="onBalanceInput(this)" onblur="onBalanceBlur(this)"/>원
+      </div>
+      <div class="pay-box dark">
+        <div class="lbl">💰 총 입금 필요금액</div>
+        <input class="pay-inp-red" id="required-inp" type="text" value="0" oninput="onRequiredManual(this)" onblur="onRequiredBlur(this)"/>원
+      </div>
+    </div>
+    <div class="pay-note">※ 가상계좌 부여 완료 — CSM코드 입력 없이 바로 입금 가능합니다.</div>
+    <div class="bank-row"><b>국민은행</b><input type="text" value="20429073002623"/></div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn btn-confirm" id="btn-confirm" onclick="confirmDoc()">✅ 확정</button>
+    <button class="btn btn-edit"    id="btn-edit"    onclick="editDoc()">✏️ 수정하기</button>
+    <button class="btn btn-copy"    onclick="copyAll()">📋 복사</button>
+    <button class="btn btn-img"     onclick="saveImage()">🖼️ 이미지</button>
+    <button class="btn btn-share"   onclick="shareUrl()">🔗 공유</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const DB=[
+  {name:"오뚜기카레_순한맛 1KG",vat:"과세",price:5720,qty:10},
+  {name:"오뚜기카레_약간매운맛 1KG",vat:"과세",price:5720,qty:10},
+  {name:"오뚜기카레_매운맛 1KG",vat:"과세",price:5720,qty:10},
+  {name:"오뚜기짜장 1KG",vat:"과세",price:6750,qty:10},
+  {name:"하이라이스소스 1KG",vat:"과세",price:5900,qty:10},
+  {name:"크림스프 1KG",vat:"과세",price:6750,qty:10},
+  {name:"양송이스프 1KG",vat:"과세",price:7600,qty:10},
+  {name:"쇠고기스프 1KG",vat:"과세",price:7600,qty:10},
+  {name:"오뚜기옥수수스프 1KG",vat:"과세",price:5900,qty:10},
+  {name:"야채스프 1KG",vat:"과세",price:7100,qty:10},
+  {name:"부침가루 1KG",vat:"과세",price:2300,qty:10},
+  {name:"튀김가루 1KG",vat:"과세",price:2300,qty:10},
+  {name:"후레시마요네스 800G",vat:"과세",price:4310,qty:12},
+  {name:"골드마요네스(은박) 3.2KG",vat:"과세",price:14300,qty:4},
+  {name:"골드마요네스(스파우트팩) 3.2KG",vat:"과세",price:11600,qty:4},
+  {name:"업소용마요네스 10KG",vat:"과세",price:36000,qty:1},
+  {name:"마요네스(케이) 10KG",vat:"과세",price:27800,qty:1},
+  {name:"오쉐프_마요네스(스탠딩파우치) 3.2KG",vat:"과세",price:9300,qty:4},
+  {name:"식당용케찹비닐내포(업무용) 18KG",vat:"과세",price:30100,qty:1},
+  {name:"식당용케찹(스파우트팩) 3.3KG",vat:"과세",price:5100,qty:4},
+  {name:"오쉐프_케찹파우치 10KG",vat:"과세",price:15800,qty:1},
+  {name:"타타르소스 245G",vat:"과세",price:1940,qty:12},
+  {name:"참깨드레싱 245G",vat:"과세",price:2310,qty:12},
+  {name:"키위드레싱(냉장) 255G",vat:"과세",price:2350,qty:9},
+  {name:"오쉐프_허니머스타드드레싱 2KG",vat:"과세",price:7150,qty:6},
+  {name:"허니머스타드드레싱 12G",vat:"과세",price:49,qty:200},
+  {name:"스테이크소스 2.1KG",vat:"과세",price:4750,qty:6},
+  {name:"돈까스소스 2.1KG",vat:"과세",price:4750,qty:6},
+  {name:"우스타소스 21KG",vat:"과세",price:31130,qty:1},
+  {name:"홀그레인머스타드 1100G",vat:"과세",price:7370,qty:12},
+  {name:"오쉐프_부어먹는돈까스소스(스파우트팩) 2KG",vat:"과세",price:3150,qty:6},
+  {name:"데리야끼소스(스파우트팩) 2KG",vat:"과세",price:4500,qty:6},
+  {name:"통닭양념매운맛 3.6KG",vat:"과세",price:8300,qty:6},
+  {name:"이금기_팬더굴소스 510G",vat:"과세",price:3400,qty:12},
+  {name:"이금기_팬더굴소스(캔) 2270G",vat:"과세",price:10850,qty:6},
+  {name:"이금기_팬더굴소스(스파우트) 2KG",vat:"과세",price:9200,qty:6},
+  {name:"이금기_팬더굴소스(BIB) 20KG",vat:"과세",price:82600,qty:1},
+  {name:"이금기_중화두반장(CAN) 2040G",vat:"과세",price:21200,qty:6},
+  {name:"이금기_중화두반장(BIB) 20KG",vat:"과세",price:115500,qty:1},
+  {name:"이금기_중화해선장(캔) 2270G",vat:"과세",price:14400,qty:6},
+  {name:"양조식초 1.5L",vat:"과세",price:1670,qty:6},
+  {name:"양조식초 1.8L",vat:"과세",price:1900,qty:6},
+  {name:"현미식초 1.8L",vat:"과세",price:3380,qty:6},
+  {name:"현미식초(PE) 18L",vat:"과세",price:18950,qty:1},
+  {name:"사과식초 1.8L",vat:"과세",price:3190,qty:6},
+  {name:"양조식초(PE) 15L",vat:"과세",price:9900,qty:1},
+  {name:"양조식초(PE) 18L",vat:"과세",price:11000,qty:1},
+  {name:"양조식초(BIB) 18L",vat:"과세",price:9360,qty:1},
+  {name:"사과식초(PE) 18L",vat:"과세",price:15400,qty:1},
+  {name:"사과식초(BIB) 18L",vat:"과세",price:13650,qty:1},
+  {name:"화이트식초(PE) 18L",vat:"과세",price:12700,qty:1},
+  {name:"화이트식초(BIB) 18L",vat:"과세",price:11100,qty:1},
+  {name:"2배사과식초 1.8L",vat:"과세",price:3920,qty:6},
+  {name:"2배양조식초(PE) 18L",vat:"과세",price:15280,qty:1},
+  {name:"2배사과식초(PE) 18L",vat:"과세",price:20670,qty:1},
+  {name:"3배양조식초(PE) 15L",vat:"과세",price:15620,qty:1},
+  {name:"미향 1.8L",vat:"과세",price:5000,qty:6},
+  {name:"미향(PE) 18L",vat:"과세",price:22550,qty:1},
+  {name:"고소한참기름(캔) 1000ML",vat:"과세",price:21000,qty:8},
+  {name:"고소한참기름(PE) 1.8L",vat:"과세",price:34500,qty:6},
+  {name:"오쉐프_옛날참기름 1.8L",vat:"과세",price:19000,qty:6},
+  {name:"1/2하프버터린(냉장) 180G",vat:"과세",price:3250,qty:8},
+  {name:"오쉐프_고추맛기름(1.5) 1.5L",vat:"과세",price:5130,qty:9},
+  {name:"순후추(병) 45G",vat:"면세",price:2500,qty:20},
+  {name:"순후추(캔) 100G",vat:"면세",price:4900,qty:20},
+  {name:"오쉐프_순후추(파우치) 1KG",vat:"면세",price:23150,qty:10},
+  {name:"옛날당면 300G",vat:"과세",price:3200,qty:30},
+  {name:"옛날당면 500G",vat:"과세",price:5000,qty:20},
+  {name:"옛날당면 1KG",vat:"과세",price:9350,qty:10},
+  {name:"옛날납작당면 14KG",vat:"과세",price:67300,qty:1},
+  {name:"옛날자른당면(국내) 300G",vat:"과세",price:3200,qty:30},
+  {name:"옛날자른당면(국내) 500G",vat:"과세",price:5000,qty:20},
+  {name:"옛날자른당면(국내) 1KG",vat:"과세",price:9350,qty:10},
+  {name:"알뜰당면 1KG",vat:"과세",price:5900,qty:10},
+  {name:"알뜰당면 2.4KG",vat:"과세",price:13200,qty:5},
+  {name:"알뜰당면 14KG",vat:"과세",price:64000,qty:1},
+  {name:"오쉐프_쫄깃한당면 14KG",vat:"과세",price:55000,qty:1},
+  {name:"옛날국수_소면 3KG",vat:"과세",price:7400,qty:4},
+  {name:"옛날국수_중면 3KG",vat:"과세",price:7400,qty:4},
+  {name:"옛날국수_메밀국수 400G",vat:"과세",price:3080,qty:20},
+  {name:"알뜰국수_소면 3KG",vat:"과세",price:6400,qty:4},
+  {name:"튀르키예_스파게티 500G",vat:"과세",price:777,qty:20},
+  {name:"튀르키예_마카로니 500G",vat:"과세",price:777,qty:20},
+  {name:"라면사리 110G",vat:"과세",price:220,qty:48},
+  {name:"참라면_사리용라면(업소용) 115G",vat:"과세",price:260,qty:48},
+  {name:"식용유(콩기름) 18L",vat:"과세",price:47000,qty:1},
+  {name:"오쉐프_식용유 18L",vat:"과세",price:46000,qty:1},
+  {name:"파운드마아가린 450G",vat:"과세",price:1600,qty:20},
+  {name:"얇은고명지단H 700G",vat:"과세",price:7980,qty:10},
+  {name:"옛날고명지단 700G",vat:"과세",price:7280,qty:10},
+  {name:"유자차 1KG",vat:"과세",price:6080,qty:9},
+  {name:"우지 20KG",vat:"과세",price:77500,qty:1},
+  {name:"식당용케찹(파우치) 5KG",vat:"과세",price:8300,qty:3},
+  {name:"돈까스소스 415G",vat:"과세",price:1630,qty:15}
+];
+
+const INITIAL=[
+  {name:"라면사리 110G",boxes:140},
+  {name:"돈까스소스 415G",boxes:5},
+  {name:"오쉐프_케찹파우치 10KG",boxes:100},
+  {name:"마요네스(케이) 10KG",boxes:112},
+  {name:"식당용케찹비닐내포(업무용) 18KG",boxes:80},
+  {name:"화이트식초(PE) 18L",boxes:15}
+];
+
+function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
+function pn(v){return parseInt((v||'0').replace(/,/g,''))||0;}
+
+// 총 입금 필요금액 수동 수정 여부
+let requiredManual=false;
+
+function updateRequired(){
+  if(requiredManual) return;
+  const total=pn(document.getElementById('sum-total').value);
+  const balance=pn(document.getElementById('balance-inp').value);
+  const req=total-balance;
+  document.getElementById('required-inp').value=fmt(req<0?0:req);
+}
+
+function onBalanceInput(inp){
+  const r=inp.value.replace(/[^0-9]/g,'');
+  inp.value=r?parseInt(r).toLocaleString('ko-KR'):'';
+  updateRequired();
+}
+function onBalanceBlur(inp){
+  const r=inp.value.replace(/[^0-9]/g,'');
+  inp.value=r?parseInt(r).toLocaleString('ko-KR'):'0';
+  updateRequired();
+}
+function onRequiredManual(inp){
+  requiredManual=true;
+  const r=inp.value.replace(/[^0-9]/g,'');
+  inp.value=r?parseInt(r).toLocaleString('ko-KR'):'';
+}
+function onRequiredBlur(inp){
+  const r=inp.value.replace(/[^0-9]/g,'');
+  inp.value=r?parseInt(r).toLocaleString('ko-KR'):'0';
+}
+
+function attachComma(inp){
+  inp.addEventListener('focus',function(){
+    const r=this.value.replace(/,/g,'');
+    this.value=r==='0'?'':r;
+  });
+  inp.addEventListener('input',function(){
+    const r=this.value.replace(/[^0-9]/g,'');
+    this.value=r?parseInt(r).toLocaleString('ko-KR'):'';
+  });
+  inp.addEventListener('blur',function(){
+    const r=this.value.replace(/[^0-9]/g,'');
+    this.value=r?parseInt(r).toLocaleString('ko-KR'):'0';
+    recalcRow(this);
+  });
+}
+
+function recalcTotals(){
+  let sup=0,tax=0;
+  document.querySelectorAll('#tbody tr').forEach(tr=>{
+    sup+=pn(tr.querySelector('[data-r=sub]').value);
+    tax+=pn(tr.querySelector('[data-r=vat]').value);
+  });
+  document.getElementById('sum-supply').value=fmt(sup);
+  document.getElementById('sum-tax').value=fmt(tax);
+  document.getElementById('sum-total').value=fmt(sup+tax);
+  updateRequired();
+}
+
+function recalcRow(inp){
+  const tr=inp.closest('tr');
+  if(!tr) return;
+  const g=r=>tr.querySelector('[data-r='+r+']');
+  const price=pn(g('price').value);
+  const boxes=pn(g('boxes').value);
+  const perBox=pn(g('perBox').value);
+  const qty=boxes*perBox;
+  const sub=price*qty;
+  const isVat=tr.dataset.vat==='과세';
+  const vat=isVat?Math.round(sub*.1):0;
+  const tot=sub+vat;
+  g('qty').value=fmt(qty);
+  g('sub').value=fmt(sub);
+  g('vat').value=fmt(vat);
+  g('tot').value=fmt(tot);
+  // 장려금포함가: 수동 입력 안 했으면 공급가액*1.03 자동 세팅
+  const fi=g('final');
+  if(!fi.dataset.manual){
+    fi.value=price>0?fmt(Math.round(price*1.03)):'';
+  }
+  recalcTotals();
+}
+
+function makeRow(itemName,boxes){
+  const d=DB.find(r=>r.name===itemName)||{vat:'과세',price:0,qty:1};
+  const perBox=d.qty;
+  const qty=boxes*perBox;
+  const sub=d.price*qty;
+  const isVat=d.vat==='과세';
+  const vat=isVat?Math.round(sub*.1):0;
+  const tot=sub+vat;
+  const defaultFinal=d.price>0?fmt(Math.round(d.price*1.03)):'';
+
+  const tr=document.createElement('tr');
+  tr.dataset.vat=d.vat;
+  tr.innerHTML=`
+    <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    <td class="name-cell">${itemName}</td>
+    <td><span class="vat-badge vat-${d.vat}">${d.vat}</span></td>
+    <td><input type="text" inputmode="numeric" value="${fmt(d.price)}" data-r="price"/></td>
+    <td><input type="text" inputmode="numeric" value="${fmt(boxes)}" data-r="boxes"/></td>
+    <td><input type="text" inputmode="numeric" value="${fmt(perBox)}" data-r="perBox"/></td>
+    <td><input type="text" readonly value="${fmt(qty)}" data-r="qty"/></td>
+    <td><input type="text" readonly value="${fmt(sub)}" data-r="sub"/></td>
+    <td><input type="text" readonly value="${fmt(vat)}" data-r="vat"/></td>
+    <td class="td-final"><input type="text" inputmode="numeric" class="final-inp" value="${defaultFinal}" placeholder="공급가×1.03" data-r="final"/></td>
+    <td class="td-total"><input type="text" readonly value="${fmt(tot)}" data-r="tot"/></td>`;
+
+  tr.querySelectorAll('[data-r=price],[data-r=boxes],[data-r=perBox]').forEach(attachComma);
+
+  const fi=tr.querySelector('[data-r=final]');
+  fi.addEventListener('focus',function(){
+    const r=this.value.replace(/,/g,'');
+    this.value=r==='0'?'':r;
+  });
+  fi.addEventListener('input',function(){
+    this.dataset.manual='1';
+    const r=this.value.replace(/[^0-9]/g,'');
+    this.value=r?parseInt(r).toLocaleString('ko-KR'):'';
+  });
+  fi.addEventListener('blur',function(){
+    const r=this.value.replace(/[^0-9]/g,'');
+    this.value=r?parseInt(r).toLocaleString('ko-KR'):'';
+  });
+  // 더블클릭으로 자동계산 초기화
+  fi.addEventListener('dblclick',function(){
+    delete this.dataset.manual;
+    const price=pn(tr.querySelector('[data-r=price]').value);
+    this.value=price>0?fmt(Math.round(price*1.03)):'';
+  });
+
+  return tr;
+}
+
+function delRow(btn){
+  const tr=btn.closest('tr');
+  tr.style.opacity='0';tr.style.transition='opacity .2s';
+  setTimeout(()=>{tr.remove();recalcTotals();},220);
+}
+
+function onSearch(val){
+  const list=document.getElementById('ac-list');
+  if(!val.trim()){list.style.display='none';return;}
+  const kw=val.toLowerCase();
+  const hits=DB.filter(r=>r.name.toLowerCase().includes(kw)).slice(0,10);
+  if(!hits.length){list.style.display='none';return;}
+  list.innerHTML=hits.map(r=>`<div onclick="addRow(this)" data-name="${r.name}">${r.name} <span style="color:#aaa;font-size:10px;">${fmt(r.price)}원</span></div>`).join('');
+  list.style.display='block';
+}
+function addRow(el){
+  const name=el.dataset.name;
+  document.getElementById('search-input').value='';
+  document.getElementById('ac-list').style.display='none';
+  const tr=makeRow(name,1);
+  tr.style.opacity='0';
+  document.getElementById('tbody').appendChild(tr);
+  setTimeout(()=>{tr.style.transition='opacity .25s';tr.style.opacity='1';},10);
+  recalcTotals();
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.add-section'))
+    document.getElementById('ac-list').style.display='none';
+});
+
+function confirmDoc(){
+  document.getElementById('main-card').classList.add('confirmed');
+  document.querySelectorAll('#tbody input,[data-r],.pay-inp,.pay-inp-red,#balance-inp,#required-inp').forEach(i=>i.setAttribute('readonly',''));
+  document.querySelectorAll('.del-btn').forEach(b=>b.style.display='none');
+  document.getElementById('add-section').style.display='none';
+  document.getElementById('btn-confirm').style.display='none';
+  document.getElementById('btn-edit').style.display='flex';
+}
+function editDoc(){
+  document.getElementById('main-card').classList.remove('confirmed');
+  document.querySelectorAll('[data-r=price],[data-r=boxes],[data-r=perBox],[data-r=final]').forEach(i=>i.removeAttribute('readonly'));
+  document.querySelectorAll('#balance-inp,#required-inp,.bank-row input').forEach(i=>i.removeAttribute('readonly'));
+  document.querySelectorAll('.del-btn').forEach(b=>b.style.display='');
+  document.getElementById('add-section').style.display='';
+  document.getElementById('btn-confirm').style.display='flex';
+  document.getElementById('btn-edit').style.display='none';
+}
+
+function copyAll(){
+  const lines=['=== 오뚜기 거래처 입금표 ===',''];
+  document.querySelectorAll('#tbody tr').forEach(tr=>{
+    const name=tr.querySelector('.name-cell').textContent.trim();
+    const vals=[
+      '납품가:'+tr.querySelector('[data-r=price]').value,
+      '박스:'+tr.querySelector('[data-r=boxes]').value,
+      '납품량:'+tr.querySelector('[data-r=qty]').value,
+      '공급가액:'+tr.querySelector('[data-r=sub]').value,
+      '세액:'+tr.querySelector('[data-r=vat]').value,
+      '합계:'+tr.querySelector('[data-r=tot]').value
+    ];
+    lines.push(name+' | '+vals.join(' | '));
+  });
+  lines.push('');
+  lines.push('공급가액합계: '+document.getElementById('sum-supply').value+'원');
+  lines.push('세액합계: '+document.getElementById('sum-tax').value+'원');
+  lines.push('총합계: '+document.getElementById('sum-total').value+'원');
+  navigator.clipboard.writeText(lines.join('\n'))
+    .then(()=>alert('복사됐어요!'))
+    .catch(()=>alert('복사 실패'));
+}
+
+const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1);
+
+async function saveImage(){
+  const overlay=document.getElementById('overlay');
+  const ovTxt=document.getElementById('ov-txt');
+  const hideEls=document.querySelectorAll('.btn-wrap,.add-section');
+  const delBtns=document.querySelectorAll('.del-btn');
+
+  overlay.classList.add('show');
+  ovTxt.textContent='이미지 생성 중...';
+  hideEls.forEach(el=>el.style.visibility='hidden');
+  delBtns.forEach(b=>b.style.display='none');
+  await new Promise(r=>setTimeout(r,200));
+
+  const card=document.getElementById('main-card');
+  const swaps=[];
+  card.querySelectorAll('input').forEach(inp=>{
+    const span=document.createElement('span');
+    span.textContent=inp.value||inp.placeholder||'';
+    span.style.cssText=`display:inline-block;font-size:${getComputedStyle(inp).fontSize};color:${inp.style.color||getComputedStyle(inp).color};font-weight:${getComputedStyle(inp).fontWeight};width:${inp.offsetWidth}px;`;
+    inp.parentNode.insertBefore(span,inp);
+    inp.style.display='none';
+    swaps.push({inp,span});
+  });
+  await new Promise(r=>setTimeout(r,100));
+
+  try{
+    const canvas=await html2canvas(card,{
+      scale:2,useCORS:true,allowTaint:true,
+      backgroundColor:'#fff',
+      scrollX:0,scrollY:-window.scrollY,logging:false
+    });
+    const date=document.getElementById('doc-date').value.replace(/\s/g,'');
+    const filename='오뚜기_입금표_'+date+'.png';
+    const dataUrl=canvas.toDataURL('image/png');
+
+    if(isMobile){
+      // 모바일: 새 탭에서 이미지 열기 → 길게 눌러 저장
+      const w=window.open('','_blank');
+      if(w){
+        w.document.write('<html><head><title>'+filename+'</title></head><body style="margin:0;background:#000;display:flex;justify-content:center;"><img src="'+dataUrl+'" style="max-width:100%;"/></body></html>');
+        w.document.close();
+        ovTxt.textContent='새 탭에서 이미지를 길게 눌러 저장하세요 ✅';
+      } else {
+        // 팝업 차단 시 링크 방식으로 시도
+        const a=document.createElement('a');
+        a.href=dataUrl;
+        a.download=filename;
+        a.click();
+        ovTxt.textContent='저장 완료! ✅';
+      }
+    } else {
+      const a=document.createElement('a');
+      a.download=filename;
+      a.href=dataUrl;
+      a.click();
+      ovTxt.textContent='저장 완료! ✅';
+    }
+    await new Promise(r=>setTimeout(r,1200));
+  }catch(e){
+    alert('이미지 저장 실패: '+e.message);
+  }finally{
+    swaps.forEach(({inp,span})=>{inp.style.display='';span.remove();});
+    hideEls.forEach(el=>el.style.visibility='');
+    delBtns.forEach(b=>b.style.display='');
+    overlay.classList.remove('show');
+  }
+}
+
+// ── URL 상태 저장/복원 ──
+function getState(){
+  const rows=[];
+  document.querySelectorAll('#tbody tr').forEach(tr=>{
+    const fi=tr.querySelector('[data-r=final]');
+    rows.push({
+      name:tr.querySelector('.name-cell').textContent.trim(),
+      price:pn(tr.querySelector('[data-r=price]').value),
+      boxes:pn(tr.querySelector('[data-r=boxes]').value),
+      perBox:pn(tr.querySelector('[data-r=perBox]').value),
+      final:fi.value||'',
+      finalManual:!!fi.dataset.manual
+    });
+  });
+  return {
+    date:document.getElementById('doc-date').value,
+    balance:pn(document.getElementById('balance-inp').value),
+    required:pn(document.getElementById('required-inp').value),
+    requiredManual,
+    rows
+  };
+}
+
+function shareUrl(){
+  const state=getState();
+  const json=JSON.stringify(state);
+  const encoded=btoa(unescape(encodeURIComponent(json)));
+  const url=location.origin+location.pathname+'#'+encoded;
+  navigator.clipboard.writeText(url)
+    .then(()=>alert('공유 링크가 클립보드에 복사됐어요!\n\n다른 기기에서 이 링크를 열면 현재 내용이 그대로 불러와집니다.'))
+    .catch(()=>{
+      prompt('아래 링크를 복사하세요:', url);
+    });
+}
+
+function loadFromHash(){
+  const hash=location.hash.slice(1);
+  if(!hash) return false;
+  try{
+    const json=decodeURIComponent(escape(atob(hash)));
+    const state=JSON.parse(json);
+    // 날짜
+    if(state.date) document.getElementById('doc-date').value=state.date;
+    // 잔액
+    if(state.balance!=null) document.getElementById('balance-inp').value=fmt(state.balance);
+    // 입금 필요금액
+    if(state.requiredManual){
+      requiredManual=true;
+      document.getElementById('required-inp').value=fmt(state.required);
+    }
+    // 품목 행
+    const tb=document.getElementById('tbody');
+    tb.innerHTML='';
+    (state.rows||[]).forEach(r=>{
+      const d=DB.find(x=>x.name===r.name)||{vat:'과세',price:r.price,qty:r.perBox};
+      const tr=makeRow(r.name,r.boxes);
+      // price/perBox 오버라이드
+      tr.querySelector('[data-r=price]').value=fmt(r.price);
+      tr.querySelector('[data-r=perBox]').value=fmt(r.perBox);
+      const fi=tr.querySelector('[data-r=final]');
+      if(r.finalManual && r.final){
+        fi.value=r.final;
+        fi.dataset.manual='1';
+      }
+      tb.appendChild(tr);
+    });
+    recalcTotals();
+    return true;
+  }catch(e){
+    console.error('URL 복원 실패',e);
+    return false;
+  }
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+window.onload=()=>{
+  const loaded=loadFromHash();
+  if(!loaded){
+    // URL 데이터 없으면 기본값
+    const tmr=new Date();
+    tmr.setDate(tmr.getDate()+1);
+    document.getElementById('doc-date').value=(tmr.getMonth()+1)+'월 '+tmr.getDate()+'일';
+    const tb=document.getElementById('tbody');
+    INITIAL.forEach(it=>tb.appendChild(makeRow(it.name,it.boxes)));
+    recalcTotals();
+  }
+};
+</script>
+</body>
+</html>
