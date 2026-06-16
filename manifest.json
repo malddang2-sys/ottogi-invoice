@@ -1,0 +1,22 @@
+{
+  "name": "오뚜기 입금표",
+  "short_name": "입금표",
+  "description": "오뚜기 거래처 입금표 - 창대통상",
+  "start_url": "./인수증_창대통상_1.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
