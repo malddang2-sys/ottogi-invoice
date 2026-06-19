@@ -13,59 +13,66 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff;padding:10px;}
-.wrap{background:#fff;border:1px solid #999;border-radius:4px;overflow:hidden;max-width:780px;margin:0 auto;}
+.wrap{background:#fff;border:1px solid #999;border-radius:4px;overflow:hidden;max-width:900px;margin:0 auto;}
 
-/* 헤더 */
 .hd{background:#fff;color:#000;border-bottom:2px solid #000;padding:10px 14px 8px;}
 .hd-top{display:flex;justify-content:space-between;align-items:center;}
 .hd h1{font-size:15px;font-weight:800;letter-spacing:-.3px;}
 .hd .fax{font-size:11px;}
-.hd-sub{font-size:11px;margin-top:4px;display:flex;align-items:center;gap:6px;}
-.hd-sub input{background:#fff;border:1px solid #555;color:#000;font-size:11px;font-weight:700;width:72px;outline:none;text-align:center;border-radius:4px;padding:2px 4px;}
-.hd-sub input::placeholder{color:#aaa;}
+.hd-sub{font-size:11px;margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.hd-sub input{background:#fff;border:1px solid #555;color:#000;font-size:11px;font-weight:700;outline:none;text-align:center;border-radius:4px;padding:2px 4px;}
+#doc-date{width:72px;}
+#customer-name{width:100px;}
 
 .confirmed-banner{display:none;background:#eee;color:#000;font-size:11px;font-weight:700;text-align:center;padding:5px;border-bottom:1px solid #999;}
 .confirmed .confirmed-banner{display:block;}
 
-/* 검색 */
 .add-section{padding:7px 10px;background:#fff;border-bottom:1px solid #ccc;position:relative;}
 .add-section input{width:100%;padding:7px 12px;border:1px solid #777;border-radius:4px;font-size:13px;outline:none;}
 .ac-list{position:absolute;left:10px;right:10px;background:#fff;border:1px solid #777;border-top:none;border-radius:0 0 4px 4px;z-index:100;max-height:180px;overflow-y:auto;display:none;box-shadow:0 4px 8px rgba(0,0,0,.15);}
 .ac-list div{padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid #eee;}
 .ac-list div:active{background:#eee;}
 
-/* 표 */
+/* 표 — table-layout:fixed로 열 크기 조정 가능 */
 .tbl-wrap{overflow-x:auto;padding:0;}
-table{width:100%;border-collapse:collapse;font-size:11px;}
+table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
 thead tr{background:#fff;color:#000;}
-thead th{padding:6px 5px;font-weight:700;text-align:center;border:1px solid #555;white-space:nowrap;}
+thead th{
+  padding:6px 5px;font-weight:700;text-align:center;
+  border:1px solid #555;white-space:nowrap;
+  position:relative;overflow:hidden;
+  user-select:none;
+}
 thead th.th-final{font-size:12px;font-weight:900;border:2px solid #000;}
+/* 열 크기 조정 핸들 */
+.col-resize{
+  position:absolute;right:0;top:0;bottom:0;width:6px;
+  cursor:col-resize;background:transparent;z-index:10;
+}
+.col-resize:hover{background:rgba(0,0,0,.25);}
+
 tbody tr{border-bottom:1px solid #ccc;}
 tbody tr:nth-child(even){background:#f5f5f5;}
-tbody td{padding:4px 5px;border:1px solid #ccc;text-align:center;vertical-align:middle;}
-tbody td.name-cell{text-align:left;font-weight:600;color:#000;font-size:11px;max-width:130px;}
+tbody td{padding:4px 5px;border:1px solid #ccc;text-align:center;vertical-align:middle;overflow:hidden;}
+tbody td.name-cell{text-align:left;font-weight:600;color:#000;font-size:11px;}
 tbody td input{width:100%;border:none;background:transparent;font-size:11px;text-align:right;outline:none;color:#000;padding:0 2px;}
-tbody td input.name-inp{text-align:left;font-weight:600;color:#000;}
 tbody td input.final-inp{color:#000;font-weight:900;font-size:13px;}
 tbody td input[readonly]{color:#333;}
 .td-total input{color:#000;font-weight:700;}
 .td-final{border-left:2px solid #000;border-right:2px solid #000;}
-.vat-badge{font-size:9px;padding:1px 4px;border:1px solid #999;border-radius:2px;font-weight:700;}
+.vat-badge{font-size:9px;padding:1px 4px;border:1px solid #999;border-radius:2px;font-weight:700;display:inline-block;}
 .vat-과세{background:#fff;color:#000;}
 .vat-면세{background:#eee;color:#000;}
 .del-btn{background:none;border:none;color:#999;font-size:13px;cursor:pointer;padding:0;line-height:1;}
 .del-btn:active{color:#000;}
 
-/* 합계행 */
-.sum-row-tr td{background:#f0f0f0;font-weight:700;font-size:11px;padding:5px 5px;}
+.sum-row-tr td{background:#f0f0f0;font-weight:700;font-size:11px;padding:5px;}
 .sum-row-tr td.lbl{text-align:right;color:#333;}
 .sum-row-tr td.val{text-align:right;color:#000;}
 .grand-tr td{background:#fff;color:#000;font-weight:800;font-size:12px;padding:6px 5px;border-top:2px solid #000;}
 .grand-tr td.lbl{text-align:right;}
-.grand-tr td.val{text-align:right;}
 .grand-tr input{color:#000;font-weight:800;font-size:12px;background:transparent;border:none;outline:none;width:100%;text-align:right;}
 
-/* 잔액 영역 */
 .payment{margin:8px 10px 10px;border:1px solid #777;border-radius:4px;overflow:hidden;}
 .pay-row{display:flex;}
 .pay-box{flex:1;padding:8px 12px;background:#fff;border-right:1px solid #ccc;}
@@ -76,16 +83,18 @@ tbody td input[readonly]{color:#333;}
 .pay-box.dark input{border-bottom-color:#333;color:#000;font-size:15px;}
 .pay-note{font-size:10px;color:#555;padding:4px 12px;background:#f5f5f5;border-top:1px solid #ccc;}
 .bank-row{padding:5px 12px 8px;background:#fff;display:flex;align-items:center;gap:6px;font-size:11px;color:#333;border-top:1px solid #ccc;}
-.bank-row input{border:none;border-bottom:1px solid #999;font-size:12px;width:155px;outline:none;background:transparent;color:#000;}
+.bank-row input{border:none;border-bottom:1px solid #999;font-size:12px;outline:none;background:transparent;color:#000;}
+#bank-name{width:80px;font-weight:700;}
+#bank-acc{width:160px;}
 
-/* 버튼 */
-.btn-wrap{padding:8px 10px 12px;display:flex;gap:6px;}
-.btn{flex:1;padding:10px 6px;border:1px solid #777;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;background:#fff;color:#000;}
+.btn-wrap{padding:6px 10px;display:flex;gap:6px;flex-wrap:wrap;}
+.btn-wrap:last-child{padding-bottom:12px;}
+.btn{flex:1;min-width:60px;padding:9px 4px;border:1px solid #777;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;background:#fff;color:#000;}
 .btn:active{opacity:.6;}
 .btn-confirm{background:#000;color:#fff;border-color:#000;}
 .btn-edit{background:#555;color:#fff;border-color:#555;display:none;}
-.btn-copy{background:#fff;color:#000;}
 .btn-img{background:#333;color:#fff;border-color:#333;}
+.btn-excel{background:#fff;color:#000;border-color:#555;}
 .btn-share{background:#fff;color:#000;border-color:#555;}
 
 #overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;justify-content:center;align-items:center;flex-direction:column;gap:12px;}
@@ -102,7 +111,7 @@ tbody td input[readonly]{color:#333;}
 </style>
 </head>
 <body>
-<div id="overlay"><div class="spinner"></div><p id="ov-txt">이미지 저장 중...</p></div>
+<div id="overlay"><div class="spinner"></div><p id="ov-txt">처리 중...</p></div>
 
 <div class="wrap" id="main-card">
   <div class="confirmed-banner">✅ 확정됨 — 수정하려면 [수정하기] 버튼을 누르세요</div>
@@ -115,7 +124,8 @@ tbody td input[readonly]{color:#333;}
     <div class="hd-sub">
       자료
       <input id="doc-date" type="text" placeholder="날짜">
-      납품분 · 창대통상
+      거래처 ·
+      <input id="customer-name" type="text" value="창대통상" placeholder="거래처명">
     </div>
   </div>
 
@@ -127,18 +137,18 @@ tbody td input[readonly]{color:#333;}
   <div class="tbl-wrap">
     <table id="items-table">
       <thead>
-        <tr>
-          <th style="width:22px"></th>
-          <th style="min-width:100px;text-align:left;">품목명</th>
-          <th>구분</th>
-          <th>납품가<br>(VAT별도)</th>
-          <th>박스수</th>
-          <th>박스당</th>
-          <th>납품량</th>
-          <th>공급가액</th>
-          <th>세액</th>
-          <th class="th-final">장려금포함<br>부가세포함가</th>
-          <th>합계</th>
+        <tr id="thead-row">
+          <th style="width:24px"></th>
+          <th style="width:130px;text-align:left;">품목명</th>
+          <th style="width:46px;">구분</th>
+          <th style="width:70px;">납품가<br>(VAT별도)</th>
+          <th style="width:50px;">박스수</th>
+          <th style="width:50px;">박스당</th>
+          <th style="width:55px;">납품량</th>
+          <th style="width:70px;">공급가액</th>
+          <th style="width:60px;">세액</th>
+          <th class="th-final" style="width:80px;">장려금포함<br>부가세포함가</th>
+          <th style="width:70px;">합계</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -165,27 +175,35 @@ tbody td input[readonly]{color:#333;}
     <div class="pay-row">
       <div class="pay-box">
         <div class="lbl">현재 잔액</div>
-        <input class="pay-inp" id="balance-inp" type="text" value="4,806,577" oninput="onBalanceInput(this)" onblur="onBalanceBlur(this)"/>원
+        <input id="balance-inp" type="text" value="4,806,577" oninput="onBalanceInput(this)" onblur="onBalanceBlur(this)"/>원
       </div>
       <div class="pay-box dark">
         <div class="lbl">💰 총 입금 필요금액</div>
-        <input class="pay-inp-red" id="required-inp" type="text" value="0" oninput="onRequiredManual(this)" onblur="onRequiredBlur(this)"/>원
+        <input id="required-inp" type="text" value="0" oninput="onRequiredManual(this)" onblur="onRequiredBlur(this)"/>원
       </div>
     </div>
     <div class="pay-note">※ 가상계좌 부여 완료 — CSM코드 입력 없이 바로 입금 가능합니다.</div>
-    <div class="bank-row"><b>국민은행</b><input type="text" value="20429073002623"/></div>
+    <div class="bank-row">
+      <input id="bank-name" type="text" value="국민은행" placeholder="은행명"/>
+      <input id="bank-acc" type="text" value="20429073002623" placeholder="계좌번호"/>
+    </div>
   </div>
 
   <div class="btn-wrap">
     <button class="btn btn-confirm" id="btn-confirm" onclick="confirmDoc()">✅ 확정</button>
     <button class="btn btn-edit"    id="btn-edit"    onclick="editDoc()">✏️ 수정하기</button>
-    <button class="btn btn-copy"    onclick="copyAll()">📋 복사</button>
+    <button class="btn"             onclick="copyAll()">📋 복사</button>
     <button class="btn btn-img"     onclick="saveImage()">🖼️ 이미지</button>
     <button class="btn btn-share"   onclick="shareUrl()">🔗 공유</button>
+  </div>
+  <div class="btn-wrap">
+    <button class="btn btn-excel"   onclick="exportExcel()">📊 엑셀 저장</button>
+    <button class="btn btn-excel"   onclick="importExcel()">📂 엑셀 불러오기</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 const DB=[
   {name:"오뚜기카레_순한맛 1KG",vat:"과세",price:5720,qty:10},
@@ -294,9 +312,8 @@ const INITIAL=[
 ];
 
 function fmt(n){return Math.round(n).toLocaleString('ko-KR');}
-function pn(v){return parseInt((v||'0').replace(/,/g,''))||0;}
+function pn(v){return parseInt((String(v)||'0').replace(/,/g,''))||0;}
 
-// 총 입금 필요금액 수동 수정 여부
 let requiredManual=false;
 
 function updateRequired(){
@@ -306,7 +323,6 @@ function updateRequired(){
   const req=total-balance;
   document.getElementById('required-inp').value=fmt(req<0?0:req);
 }
-
 function onBalanceInput(inp){
   const r=inp.value.replace(/[^0-9]/g,'');
   inp.value=r?parseInt(r).toLocaleString('ko-KR'):'';
@@ -371,7 +387,6 @@ function recalcRow(inp){
   g('sub').value=fmt(sub);
   g('vat').value=fmt(vat);
   g('tot').value=fmt(tot);
-  // 장려금포함가: 수동 입력 안 했으면 공급가액*1.03 자동 세팅
   const fi=g('final');
   if(!fi.dataset.manual){
     fi.value=price>0?fmt(Math.round(price*1.03)):'';
@@ -379,34 +394,38 @@ function recalcRow(inp){
   recalcTotals();
 }
 
-function makeRow(itemName,boxes){
+function makeRow(itemName,boxes,overrides){
+  overrides=overrides||{};
   const d=DB.find(r=>r.name===itemName)||{vat:'과세',price:0,qty:1};
-  const perBox=d.qty;
+  const price=overrides.price!=null?overrides.price:d.price;
+  const perBox=overrides.perBox!=null?overrides.perBox:d.qty;
+  const vat=overrides.vat||d.vat;
   const qty=boxes*perBox;
-  const sub=d.price*qty;
-  const isVat=d.vat==='과세';
-  const vat=isVat?Math.round(sub*.1):0;
-  const tot=sub+vat;
-  const defaultFinal=d.price>0?fmt(Math.round(d.price*1.03)):'';
+  const sub=price*qty;
+  const isVat=vat==='과세';
+  const vatAmt=isVat?Math.round(sub*.1):0;
+  const tot=sub+vatAmt;
+  const defaultFinal=overrides.final!=null?overrides.final:(price>0?fmt(Math.round(price*1.03)):'');
 
   const tr=document.createElement('tr');
-  tr.dataset.vat=d.vat;
+  tr.dataset.vat=vat;
   tr.innerHTML=`
     <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
     <td class="name-cell">${itemName}</td>
-    <td><span class="vat-badge vat-${d.vat}">${d.vat}</span></td>
-    <td><input type="text" inputmode="numeric" value="${fmt(d.price)}" data-r="price"/></td>
+    <td><span class="vat-badge vat-${vat}">${vat}</span></td>
+    <td><input type="text" inputmode="numeric" value="${fmt(price)}" data-r="price"/></td>
     <td><input type="text" inputmode="numeric" value="${fmt(boxes)}" data-r="boxes"/></td>
     <td><input type="text" inputmode="numeric" value="${fmt(perBox)}" data-r="perBox"/></td>
     <td><input type="text" readonly value="${fmt(qty)}" data-r="qty"/></td>
     <td><input type="text" readonly value="${fmt(sub)}" data-r="sub"/></td>
-    <td><input type="text" readonly value="${fmt(vat)}" data-r="vat"/></td>
-    <td class="td-final"><input type="text" inputmode="numeric" class="final-inp" value="${defaultFinal}" placeholder="공급가×1.03" data-r="final"/></td>
+    <td><input type="text" readonly value="${fmt(vatAmt)}" data-r="vat"/></td>
+    <td class="td-final"><input type="text" inputmode="numeric" class="final-inp" value="${defaultFinal}" placeholder="납품가×1.03" data-r="final"/></td>
     <td class="td-total"><input type="text" readonly value="${fmt(tot)}" data-r="tot"/></td>`;
 
   tr.querySelectorAll('[data-r=price],[data-r=boxes],[data-r=perBox]').forEach(attachComma);
 
   const fi=tr.querySelector('[data-r=final]');
+  if(overrides.finalManual) fi.dataset.manual='1';
   fi.addEventListener('focus',function(){
     const r=this.value.replace(/,/g,'');
     this.value=r==='0'?'':r;
@@ -420,13 +439,11 @@ function makeRow(itemName,boxes){
     const r=this.value.replace(/[^0-9]/g,'');
     this.value=r?parseInt(r).toLocaleString('ko-KR'):'';
   });
-  // 더블클릭으로 자동계산 초기화
   fi.addEventListener('dblclick',function(){
     delete this.dataset.manual;
     const price=pn(tr.querySelector('[data-r=price]').value);
     this.value=price>0?fmt(Math.round(price*1.03)):'';
   });
-
   return tr;
 }
 
@@ -462,7 +479,7 @@ document.addEventListener('click',e=>{
 
 function confirmDoc(){
   document.getElementById('main-card').classList.add('confirmed');
-  document.querySelectorAll('#tbody input,[data-r],.pay-inp,.pay-inp-red,#balance-inp,#required-inp').forEach(i=>i.setAttribute('readonly',''));
+  document.querySelectorAll('#tbody input,#balance-inp,#required-inp,#doc-date,#customer-name,#bank-name,#bank-acc').forEach(i=>i.setAttribute('readonly',''));
   document.querySelectorAll('.del-btn').forEach(b=>b.style.display='none');
   document.getElementById('add-section').style.display='none';
   document.getElementById('btn-confirm').style.display='none';
@@ -470,8 +487,8 @@ function confirmDoc(){
 }
 function editDoc(){
   document.getElementById('main-card').classList.remove('confirmed');
-  document.querySelectorAll('[data-r=price],[data-r=boxes],[data-r=perBox],[data-r=final]').forEach(i=>i.removeAttribute('readonly'));
-  document.querySelectorAll('#balance-inp,#required-inp,.bank-row input').forEach(i=>i.removeAttribute('readonly'));
+  document.querySelectorAll('#tbody input,#balance-inp,#required-inp,#doc-date,#customer-name,#bank-name,#bank-acc').forEach(i=>i.removeAttribute('readonly'));
+  document.querySelectorAll('[data-r=qty],[data-r=sub],[data-r=vat],[data-r=tot]').forEach(i=>i.setAttribute('readonly',''));
   document.querySelectorAll('.del-btn').forEach(b=>b.style.display='');
   document.getElementById('add-section').style.display='';
   document.getElementById('btn-confirm').style.display='flex';
@@ -501,6 +518,99 @@ function copyAll(){
     .catch(()=>alert('복사 실패'));
 }
 
+// ── 엑셀 내보내기 ──
+function exportExcel(){
+  if(typeof XLSX==='undefined'){alert('엑셀 라이브러리 로딩 중입니다. 잠시 후 다시 시도해주세요.');return;}
+  const wb=XLSX.utils.book_new();
+  const customer=document.getElementById('customer-name').value;
+  const bankName=document.getElementById('bank-name').value;
+  const bankAcc=document.getElementById('bank-acc').value;
+  const date=document.getElementById('doc-date').value;
+
+  const aoa=[
+    ['날짜',date,'거래처',customer,'잔액',pn(document.getElementById('balance-inp').value),'필요입금액',pn(document.getElementById('required-inp').value),'필요수동',requiredManual?1:0],
+    ['은행명',bankName,'계좌번호',bankAcc],
+    [],
+    ['품목명','구분','납품가','박스수','박스당','납품량','공급가액','세액','장려금포함가','합계','장려금수동']
+  ];
+
+  document.querySelectorAll('#tbody tr').forEach(tr=>{
+    const fi=tr.querySelector('[data-r=final]');
+    aoa.push([
+      tr.querySelector('.name-cell').textContent.trim(),
+      tr.dataset.vat,
+      pn(tr.querySelector('[data-r=price]').value),
+      pn(tr.querySelector('[data-r=boxes]').value),
+      pn(tr.querySelector('[data-r=perBox]').value),
+      pn(tr.querySelector('[data-r=qty]').value),
+      pn(tr.querySelector('[data-r=sub]').value),
+      pn(tr.querySelector('[data-r=vat]').value),
+      fi.value?pn(fi.value):'',
+      pn(tr.querySelector('[data-r=tot]').value),
+      fi.dataset.manual?1:0
+    ]);
+  });
+
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  // 열 너비 설정
+  ws['!cols']=[{wch:16},{wch:4},{wch:8},{wch:8},{wch:6},{wch:6},{wch:8},{wch:10},{wch:10},{wch:12},{wch:12},{wch:6}];
+  XLSX.utils.book_append_sheet(wb,ws,'입금표');
+  const fname='오뚜기_입금표_'+date.replace(/\s/g,'')+'_'+customer+'.xlsx';
+  XLSX.writeFile(wb,fname);
+}
+
+// ── 엑셀 불러오기 ──
+function importExcel(){
+  if(typeof XLSX==='undefined'){alert('엑셀 라이브러리 로딩 중입니다. 잠시 후 다시 시도해주세요.');return;}
+  const inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='.xlsx,.xls';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    try{
+      const buf=await file.arrayBuffer();
+      const wb=XLSX.read(buf);
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+
+      const meta1=data[0]||[];
+      const meta2=data[1]||[];
+      // 메타 파싱: [날짜,val,거래처,val,잔액,val,필요입금,val,필요수동,val]
+      document.getElementById('doc-date').value=meta1[1]||'';
+      document.getElementById('customer-name').value=meta1[3]||'';
+      document.getElementById('balance-inp').value=fmt(Number(meta1[5])||0);
+      requiredManual=Number(meta1[9])===1;
+      document.getElementById('required-inp').value=fmt(Number(meta1[7])||0);
+      document.getElementById('bank-name').value=meta2[1]||'';
+      document.getElementById('bank-acc').value=meta2[3]||'';
+
+      // 품목 행 (행 index 4부터)
+      const tb=document.getElementById('tbody');
+      tb.innerHTML='';
+      for(let i=4;i<data.length;i++){
+        const row=data[i];
+        if(!row[0]) continue;
+        const [name,vat,price,boxes,perBox,,,,finalVal,,finalManual]=row;
+        const tr=makeRow(String(name),Number(boxes)||1,{
+          price:Number(price)||0,
+          perBox:Number(perBox)||1,
+          vat:vat||'과세',
+          final:finalVal!==''?fmt(Number(finalVal)):null,
+          finalManual:Number(finalManual)===1
+        });
+        tb.appendChild(tr);
+      }
+      recalcTotals();
+      alert('엑셀 파일을 불러왔어요! ✅');
+    }catch(err){
+      alert('파일 읽기 실패: '+err.message);
+    }
+  };
+  inp.click();
+}
+
+// ── 이미지 저장 ──
 const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1);
 
 async function saveImage(){
@@ -528,35 +638,23 @@ async function saveImage(){
   await new Promise(r=>setTimeout(r,100));
 
   try{
-    const canvas=await html2canvas(card,{
-      scale:2,useCORS:true,allowTaint:true,
-      backgroundColor:'#fff',
-      scrollX:0,scrollY:-window.scrollY,logging:false
-    });
+    const canvas=await html2canvas(card,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#fff',scrollX:0,scrollY:-window.scrollY,logging:false});
     const date=document.getElementById('doc-date').value.replace(/\s/g,'');
-    const filename='오뚜기_입금표_'+date+'.png';
+    const customer=document.getElementById('customer-name').value;
+    const filename=`오뚜기_입금표_${date}_${customer}.png`;
     const dataUrl=canvas.toDataURL('image/png');
-
     if(isMobile){
-      // 모바일: 새 탭에서 이미지 열기 → 길게 눌러 저장
       const w=window.open('','_blank');
       if(w){
-        w.document.write('<html><head><title>'+filename+'</title></head><body style="margin:0;background:#000;display:flex;justify-content:center;"><img src="'+dataUrl+'" style="max-width:100%;"/></body></html>');
+        w.document.write(`<html><head><title>${filename}</title></head><body style="margin:0;background:#000;"><img src="${dataUrl}" style="max-width:100%;"/></body></html>`);
         w.document.close();
-        ovTxt.textContent='새 탭에서 이미지를 길게 눌러 저장하세요 ✅';
+        ovTxt.textContent='새 탭에서 이미지 길게 눌러 저장 ✅';
       } else {
-        // 팝업 차단 시 링크 방식으로 시도
-        const a=document.createElement('a');
-        a.href=dataUrl;
-        a.download=filename;
-        a.click();
+        const a=document.createElement('a');a.href=dataUrl;a.download=filename;a.click();
         ovTxt.textContent='저장 완료! ✅';
       }
     } else {
-      const a=document.createElement('a');
-      a.download=filename;
-      a.href=dataUrl;
-      a.click();
+      const a=document.createElement('a');a.download=filename;a.href=dataUrl;a.click();
       ovTxt.textContent='저장 완료! ✅';
     }
     await new Promise(r=>setTimeout(r,1200));
@@ -570,7 +668,7 @@ async function saveImage(){
   }
 }
 
-// ── URL 상태 저장/복원 ──
+// ── URL 공유 ──
 function getState(){
   const rows=[];
   document.querySelectorAll('#tbody tr').forEach(tr=>{
@@ -580,68 +678,91 @@ function getState(){
       price:pn(tr.querySelector('[data-r=price]').value),
       boxes:pn(tr.querySelector('[data-r=boxes]').value),
       perBox:pn(tr.querySelector('[data-r=perBox]').value),
+      vat:tr.dataset.vat,
       final:fi.value||'',
       finalManual:!!fi.dataset.manual
     });
   });
-  return {
+  return{
     date:document.getElementById('doc-date').value,
+    customer:document.getElementById('customer-name').value,
+    bankName:document.getElementById('bank-name').value,
+    bankAcc:document.getElementById('bank-acc').value,
     balance:pn(document.getElementById('balance-inp').value),
     required:pn(document.getElementById('required-inp').value),
-    requiredManual,
-    rows
+    requiredManual,rows
   };
 }
 
 function shareUrl(){
   const state=getState();
-  const json=JSON.stringify(state);
-  const encoded=btoa(unescape(encodeURIComponent(json)));
+  const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
   const url=location.origin+location.pathname+'#'+encoded;
   navigator.clipboard.writeText(url)
-    .then(()=>alert('공유 링크가 클립보드에 복사됐어요!\n\n다른 기기에서 이 링크를 열면 현재 내용이 그대로 불러와집니다.'))
-    .catch(()=>{
-      prompt('아래 링크를 복사하세요:', url);
-    });
+    .then(()=>alert('공유 링크가 클립보드에 복사됐어요!\n다른 기기에서 이 링크를 열면 현재 내용이 그대로 불러와집니다.'))
+    .catch(()=>prompt('아래 링크를 복사하세요:',url));
 }
 
 function loadFromHash(){
   const hash=location.hash.slice(1);
   if(!hash) return false;
   try{
-    const json=decodeURIComponent(escape(atob(hash)));
-    const state=JSON.parse(json);
-    // 날짜
+    const state=JSON.parse(decodeURIComponent(escape(atob(hash))));
     if(state.date) document.getElementById('doc-date').value=state.date;
-    // 잔액
+    if(state.customer) document.getElementById('customer-name').value=state.customer;
+    if(state.bankName) document.getElementById('bank-name').value=state.bankName;
+    if(state.bankAcc) document.getElementById('bank-acc').value=state.bankAcc;
     if(state.balance!=null) document.getElementById('balance-inp').value=fmt(state.balance);
-    // 입금 필요금액
     if(state.requiredManual){
       requiredManual=true;
       document.getElementById('required-inp').value=fmt(state.required);
     }
-    // 품목 행
     const tb=document.getElementById('tbody');
     tb.innerHTML='';
     (state.rows||[]).forEach(r=>{
-      const d=DB.find(x=>x.name===r.name)||{vat:'과세',price:r.price,qty:r.perBox};
-      const tr=makeRow(r.name,r.boxes);
-      // price/perBox 오버라이드
-      tr.querySelector('[data-r=price]').value=fmt(r.price);
-      tr.querySelector('[data-r=perBox]').value=fmt(r.perBox);
-      const fi=tr.querySelector('[data-r=final]');
-      if(r.finalManual && r.final){
-        fi.value=r.final;
-        fi.dataset.manual='1';
-      }
+      const tr=makeRow(r.name,r.boxes,{
+        price:r.price,perBox:r.perBox,vat:r.vat,
+        final:r.final||null,finalManual:r.finalManual
+      });
       tb.appendChild(tr);
     });
     recalcTotals();
     return true;
-  }catch(e){
-    console.error('URL 복원 실패',e);
-    return false;
-  }
+  }catch(e){console.error('URL 복원 실패',e);return false;}
+}
+
+// ── 열 크기 조정 핸들 ──
+function initColResize(){
+  document.querySelectorAll('#thead-row th').forEach(th=>{
+    const handle=document.createElement('div');
+    handle.className='col-resize';
+    th.appendChild(handle);
+    let startX,startW;
+
+    function onMove(x){th.style.width=Math.max(30,startW+x-startX)+'px';}
+    function onUp(){
+      document.removeEventListener('mousemove',mmove);
+      document.removeEventListener('mouseup',mup);
+      document.removeEventListener('touchmove',tmove);
+      document.removeEventListener('touchend',tup);
+    }
+    const mmove=e=>onMove(e.pageX);
+    const mup=onUp;
+    const tmove=e=>{e.preventDefault();onMove(e.touches[0].pageX);};
+    const tup=onUp;
+
+    handle.addEventListener('mousedown',e=>{
+      startX=e.pageX;startW=th.offsetWidth;
+      document.addEventListener('mousemove',mmove);
+      document.addEventListener('mouseup',mup);
+      e.preventDefault();
+    });
+    handle.addEventListener('touchstart',e=>{
+      startX=e.touches[0].pageX;startW=th.offsetWidth;
+      document.addEventListener('touchmove',tmove,{passive:false});
+      document.addEventListener('touchend',tup);
+    },{passive:true});
+  });
 }
 
 if('serviceWorker' in navigator){
@@ -649,9 +770,9 @@ if('serviceWorker' in navigator){
 }
 
 window.onload=()=>{
+  initColResize();
   const loaded=loadFromHash();
   if(!loaded){
-    // URL 데이터 없으면 기본값
     const tmr=new Date();
     tmr.setDate(tmr.getDate()+1);
     document.getElementById('doc-date').value=(tmr.getMonth()+1)+'월 '+tmr.getDate()+'일';
